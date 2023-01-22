@@ -59,31 +59,7 @@ void handle_input_pong(struct Pong* pong, ALLEGRO_KEYBOARD_STATE* state)
     }
     else if (pong->state == PLAY)
     {
-        if (al_key_down(state, ALLEGRO_KEY_S))
-        {
-            pong->player1.vy = PADDLE_SPEED;
-        }
-        else if (al_key_down(state, ALLEGRO_KEY_W))
-        {
-            pong->player1.vy = -PADDLE_SPEED;
-        }
-        else
-        {
-            pong->player1.vy = 0;
-        }
-
-        if (al_key_down(state, ALLEGRO_KEY_DOWN))
-        {
-            pong->player2.vy = PADDLE_SPEED;
-        }
-        else if (al_key_down(state, ALLEGRO_KEY_UP))
-        {
-            pong->player2.vy = -PADDLE_SPEED;
-        }
-        else
-        {
-            pong->player2.vy = 0;
-        }
+        // 
     }
     else
     {
@@ -112,13 +88,14 @@ void update_pong(struct Pong* pong, double dt)
     if (pong->state == PLAY)
     {
         
-        ////////////////////////////////////////////////////////////////////////
-        int p1_AI_difficulty = 7;
+        // Paddles AI
+        int p1_AI_difficulty = 9;
         int p2_AI_difficulty = 10;
         float p1_center = pong->player1.y + (PADDLE_HEIGHT / 2);
         float p2_center = pong->player2.y + (PADDLE_HEIGHT / 2);
         float ball_center = pong->ball.y + (BALL_SIZE / 2);
 
+        // AI for Paddle 1
         if (p1_center == ball_center || pong->ball.vx > 0)
         {
             pong->player1.vy = 0;
@@ -132,19 +109,27 @@ void update_pong(struct Pong* pong, double dt)
             pong->player1.vy *= -1;
         }
 
-        if (p2_center == ball_center || pong->ball.vx < 0)
+        // AI for Paddle 2
+        if (pong->ball.vx < 0)
         {
-            pong->player2.vy = 0;
+            pong->player2.vy = PADDLE_SPEED * (p2_center < TABLE_HEIGHT / 2? 1: -1) / 2;
         }
         else
         {
-            pong->player2.vy = PADDLE_SPEED * (p2_center < ball_center? 1: -1);
+            if (p2_center == ball_center)
+            {
+                    pong->player2.vy = 0;
+            }
+            else
+            {
+                pong->player2.vy = PADDLE_SPEED * (p2_center < ball_center? 1: -1);
+            }
+            if (rand()%10 > p2_AI_difficulty)
+            {
+                pong->player1.vy *= -1;
+            }
         }
-        if (rand()%10 > p2_AI_difficulty)
-        {
-            pong->player1.vy *= -1;
-        }
-        ////////////////////////////////////////////////////////////////////////
+        
         
 
         update_paddle(&pong->player1, dt);
@@ -249,7 +234,6 @@ void render_pong(struct Pong pong)
         al_map_rgb(127, 64, 127)
     );
     
-    ////////////////////////////////////////////////////////////////////////////
     for (int i = 0; i < pong.player1_score; ++i)
     {
         al_draw_filled_circle(
@@ -263,10 +247,10 @@ void render_pong(struct Pong pong)
             TABLE_WIDTH / 2 + 10 + 8*i, 10, 4, al_map_rgb(127, 64 + i*32, 127)
         );
     }
-    ////////////////////////////////////////////////////////////////////////////
 
     render_paddle(pong.player1);
     render_paddle(pong.player2);
     render_ball(pong.ball);
 
 }
+
