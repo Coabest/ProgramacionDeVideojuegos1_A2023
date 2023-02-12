@@ -23,13 +23,16 @@ void TitleScreenState::handle_inputs(const sf::Event& event) noexcept
 {
     if (event.key.code == sf::Keyboard::Num1)
     {
-        world = std::make_shared<World>(false);
+        // world = std::make_shared<World>(false);
+        state_machine->set_hardmode(false);
+        state_machine->change_state("count_down", world);
     }
     else if (event.key.code == sf::Keyboard::Num2)
     {
-        world = std::make_shared<World>(false);
+        // world = std::make_shared<World>(false);
+        state_machine->set_hardmode(true);
+        state_machine->change_state("count_down", world);
     }
-    state_machine->change_state("count_down", world);
 }
 
 void TitleScreenState::update(float dt) noexcept

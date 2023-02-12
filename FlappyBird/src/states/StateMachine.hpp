@@ -16,10 +16,13 @@
 #include <unordered_map>
 
 #include <src/states/BaseState.hpp>
+#include <src/gameModes/GameMode.hpp>
 
 class StateMachine
 {
 public:
+    bool hardmode; // False = normal, True = Hard
+    
     using StateBuilder = std::function<std::shared_ptr<BaseState>(StateMachine*)>;
 
     StateMachine(const std::initializer_list<std::pair<std::string, StateBuilder>>& init_states = {}) noexcept;
@@ -31,6 +34,10 @@ public:
     void update(float dt) noexcept;
 
     void render(sf::RenderTarget& target) const noexcept;
+
+    void set_hardmode(bool hardmode) noexcept;
+
+    bool is_hardmode() noexcept;
 
 private:
     std::unordered_map<std::string, StateBuilder> states;

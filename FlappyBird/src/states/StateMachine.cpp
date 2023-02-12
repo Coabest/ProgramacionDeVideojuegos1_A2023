@@ -44,3 +44,12 @@ void StateMachine::render(sf::RenderTarget& target) const noexcept
 {
     current_state->render(target);
 }
+
+void StateMachine::set_hardmode(bool _hardmode) noexcept
+{
+    hardmode = _hardmode;
+}
+bool StateMachine::is_hardmode() noexcept
+{
+    return hardmode;
+}

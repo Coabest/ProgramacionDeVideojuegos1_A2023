@@ -30,17 +30,17 @@ public:
 
     void reset(bool _generate_logs) noexcept;
 
-    //void set_difficulty(bool _difficulty_mode) noexcept;
-
     bool collides(const sf::FloatRect& rect) const noexcept;
 
     bool update_scored(const sf::FloatRect& rect) noexcept;
 
     void update(float dt) noexcept;
 
+    // void update_hardmode(float dt) noexcept;
+
     void render(sf::RenderTarget& target) const noexcept;
+
 private:
-    //bool difficulty_mode;
     bool generate_logs;
 
     sf::Sprite background;

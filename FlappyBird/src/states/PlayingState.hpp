@@ -13,6 +13,8 @@
 #include <src/Bird.hpp>
 #include <src/World.hpp>
 #include <src/states/BaseState.hpp>
+#include <src/gameModes/GameMode.hpp>
+#include <src/gameModes/Normal.hpp>
 
 class PlayingState: public BaseState
 {
@@ -29,6 +31,7 @@ public:
     void render(sf::RenderTarget& target) const noexcept override;
 
 private:
-    std::shared_ptr<Bird> bird;
     std::shared_ptr<World> world;
+    std::shared_ptr<Bird> bird;
+    std::shared_ptr<GameMode> gameMode;
 };
