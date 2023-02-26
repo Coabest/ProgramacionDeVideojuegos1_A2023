@@ -28,6 +28,8 @@ std::unordered_map<std::string, sf::Font> Settings::fonts{};
 
 sf::Music Settings::music{};
 
+sf::Music Settings::powerUp_music{};
+
 void Settings::init()
 {
     Settings::load_textures();
@@ -66,6 +68,13 @@ void Settings::load_textures()
     }
 
     Settings::textures["Log"] = texture;
+
+    if (!texture.loadFromFile(Settings::GRAPHICS_PATH / "powerUp.png"))
+    {
+        throw std::runtime_error{"Error loading texture graphics/powerUp.png"};
+    }
+
+    Settings::textures["PowerUp"] = texture;
 }
 
 void Settings::load_sounds()
@@ -103,6 +112,16 @@ void Settings::load_sounds()
     sound.setBuffer(result.first->second);
     Settings::sounds["hurt"] = sound;
 
+    if (!buffer.loadFromFile(Settings::SOUNDS_PATH / "thump.wav"))
+    {
+        throw std::runtime_error{"Error loading sound sounds/thump.wav"};
+    }
+
+    result = Settings::sound_buffers.emplace("thump", buffer);
+
+    sound.setBuffer(result.first->second);
+    Settings::sounds["thump"] = sound;
+
     if (!buffer.loadFromFile(Settings::SOUNDS_PATH / "score.wav"))
     {
         throw std::runtime_error{"Error loading sound sounds/score.wav"};
@@ -112,6 +131,21 @@ void Settings::load_sounds()
 
     sound.setBuffer(result.first->second);
     Settings::sounds["score"] = sound;
+
+    if (!buffer.loadFromFile(Settings::SOUNDS_PATH / "TaDa.wav"))
+    {
+        throw std::runtime_error{"Error loading sound sounds/TaDa.wav"};
+    }
+
+    result = Settings::sound_buffers.emplace("TaDa", buffer);
+
+    sound.setBuffer(result.first->second);
+    Settings::sounds["TaDa"] = sound;
+    
+    if (!Settings::powerUp_music.openFromFile(Settings::SOUNDS_PATH / "retro_music.ogg"))
+    {
+        throw std::runtime_error{"Error loading music sounds/retro_music.ogg"};
+    }
 
     if (!Settings::music.openFromFile(Settings::SOUNDS_PATH / "marios_way.ogg"))
     {

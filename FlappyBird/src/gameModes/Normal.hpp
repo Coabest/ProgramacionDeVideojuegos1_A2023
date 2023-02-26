@@ -10,5 +10,5 @@ public:
 
     void handle_inputs(const sf::Event& event) noexcept override;
 
-    void update(float dt) noexcept override;
+    void update(float dt, bool powerUp_mode = false) noexcept override;
 };

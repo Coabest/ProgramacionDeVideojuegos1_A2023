@@ -19,7 +19,7 @@ public:
 
     sf::FloatRect get_collision_rect() const noexcept;
 
-    void update(float _x) noexcept;
+    void update(float _x, float _dy = 0) noexcept;
 
     void render(sf::RenderTarget& target) const noexcept;
 

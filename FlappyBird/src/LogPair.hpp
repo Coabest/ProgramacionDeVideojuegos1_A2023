@@ -30,7 +30,11 @@ public:
 
     void reset(float _x, float _y) noexcept;
 
+    void make_logs_converge() noexcept;
+
 private:
+    bool converging_logs;
+    bool is_converging;
     float x;
     float y;
     Log top;

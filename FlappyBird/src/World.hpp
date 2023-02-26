@@ -18,6 +18,7 @@
 
 #include <src/Factory.hpp>
 #include <src/LogPair.hpp>
+#include <src/PowerUp.hpp>
 
 class World
 {
@@ -32,29 +33,42 @@ public:
 
     bool collides(const sf::FloatRect& rect) const noexcept;
 
+    bool powerUp_pickup(const sf::FloatRect& rect) noexcept;
+
+    bool is_in_powerUp();
+
     bool update_scored(const sf::FloatRect& rect) noexcept;
 
     void update(float dt) noexcept;
 
-    // void update_hardmode(float dt) noexcept;
+    void update_hardmode(float dt) noexcept;
 
     void render(sf::RenderTarget& target) const noexcept;
 
 private:
+    bool powerUp_mode;
     bool generate_logs;
+    bool generate_powerup;
 
     sf::Sprite background;
     sf::Sprite ground;
 
     float background_x{0.f};
     float ground_x{0.f};
+    float powerUp_x{0.f};
 
     Factory<LogPair> log_factory;
-
     std::list<std::shared_ptr<LogPair>> logs;
+
+    Factory<PowerUp> powerUp_factory;
+    std::list<std::shared_ptr<PowerUp>> powerUp;
 
     std::mt19937 rng;
 
     float logs_spawn_timer{0.f};
     float last_log_y{0.f};
+
+    float powerUp_spawn_timer{0.f};
+
+    float powerUp_duration_timer{0.f};
 };

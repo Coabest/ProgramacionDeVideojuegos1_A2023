@@ -15,6 +15,7 @@
 #include <src/states/BaseState.hpp>
 #include <src/gameModes/GameMode.hpp>
 #include <src/gameModes/Normal.hpp>
+#include <src/gameModes/Hard.hpp>
 
 class PlayingState: public BaseState
 {

@@ -29,15 +29,21 @@ public:
 
     void jump() noexcept;
 
-    void update(float dt) noexcept;
+    void move_left() noexcept;
+
+    void move_right() noexcept;
+
+    void update(float dt, bool powerUp_mode);
 
     void render(sf::RenderTarget& target) const noexcept;
 
 private:
+    int R, G, B;
     float x;
     float y;
     float width;
     float height;
+    float vx;
     float vy;
     int score{0};
     sf::Sprite sprite;

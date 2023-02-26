@@ -14,7 +14,7 @@ public:
 
     virtual void handle_inputs(const sf::Event & event) noexcept {}
 
-    virtual void update(float dt) noexcept {}
+    virtual void update(float dt, bool powerUp_mode = false) noexcept {}
 
     virtual void render(sf::RenderTarget & target) noexcept {}
 

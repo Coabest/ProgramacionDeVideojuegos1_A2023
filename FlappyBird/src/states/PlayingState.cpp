@@ -21,8 +21,7 @@ PlayingState::PlayingState(StateMachine* sm) noexcept
 }
 
 void PlayingState::enter(std::shared_ptr<World> _world, std::shared_ptr<Bird> _bird) noexcept
-{
-    std::cout << "Entered playing state with gameMode: " << (state_machine->is_hardmode()? "Hard ": "Normal ") << state_machine->is_hardmode() << " \n";        
+{      
     world = _world;
     world->reset(true);
     
@@ -43,38 +42,34 @@ void PlayingState::enter(std::shared_ptr<World> _world, std::shared_ptr<Bird> _b
         bool mode = state_machine->is_hardmode();
         if (mode)
         {
-            // gameMode = std::make_shared<Hard>(bird, world);
+            gameMode = std::make_shared<Hard>(world, bird);
         }
         else
         {
-            std::cout << "creating normal gameMode\n";
             gameMode = std::make_shared<Normal>(world, bird);
-            std::cout << "created normal gameMode\n";
         }
         
-
     }
 }
 
 void PlayingState::handle_inputs(const sf::Event& event) noexcept
 {
-    // if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
-    // {
-    //     bird->jump();
-    // }
-
     gameMode->handle_inputs(event);
 
     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Right)
     {
-        std::cout << "Game paused\n";
         state_machine->change_state("pause", world, bird);
     }
 }
 
 void PlayingState::update(float dt) noexcept
 {
-    gameMode->update(dt);
+    gameMode->update(dt, world->is_in_powerUp());
+
+    if (!world->is_in_powerUp() && world->powerUp_pickup(bird->get_collision_rect()))
+    {
+        Settings::sounds["TaDa"].play();
+    }
 
     if (world->collides(bird->get_collision_rect()))
     {

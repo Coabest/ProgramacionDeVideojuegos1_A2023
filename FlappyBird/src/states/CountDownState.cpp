@@ -7,7 +7,6 @@
 
     This file contains the definition of the class CountDownBaseState.
 */
-#include <iostream>
 #include <Settings.hpp>
 #include <src/text_utilities.hpp>
 #include <src/states/CountDownState.hpp>
@@ -21,7 +20,6 @@ CountDownState::CountDownState(StateMachine* sm) noexcept
 
 void CountDownState::enter(std::shared_ptr<World> _world, std::shared_ptr<Bird> _bird) noexcept
 {
-    std::cout << "Entered countdown state with gameMode: " << (state_machine->is_hardmode()? "Hard ": "Normal ") << state_machine->is_hardmode() << " \n";
     if (_world == nullptr)
     {
         world = std::make_shared<World>(false);
