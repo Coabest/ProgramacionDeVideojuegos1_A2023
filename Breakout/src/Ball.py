@@ -29,6 +29,8 @@ class Ball:
         self.texture = settings.TEXTURES["spritesheet"]
         self.frame = random.randint(0, 6)
         self.in_play = True
+        
+        self.stuck = False
 
     def get_collision_rect(self) -> pygame.Rect:
         return pygame.Rect(self.x, self.y, self.width, self.height)
@@ -37,15 +39,17 @@ class Ball:
         r = self.get_collision_rect()
 
         if r.left < 0:
-            settings.SOUNDS["wall_hit"].stop()
-            settings.SOUNDS["wall_hit"].play()
             self.x = 0
-            self.vx *= -1
+            if not self.stuck:
+                settings.SOUNDS["wall_hit"].stop()
+                settings.SOUNDS["wall_hit"].play()
+                self.vx *= -1
         elif r.right > settings.VIRTUAL_WIDTH:
-            settings.SOUNDS["wall_hit"].stop()
-            settings.SOUNDS["wall_hit"].play()
             self.x = settings.VIRTUAL_WIDTH - self.width
-            self.vx *= -1
+            if not self.stuck:
+                settings.SOUNDS["wall_hit"].stop()
+                settings.SOUNDS["wall_hit"].play()
+                self.vx *= -1
         elif r.top < 0:
             settings.SOUNDS["wall_hit"].stop()
             settings.SOUNDS["wall_hit"].play()
@@ -60,8 +64,9 @@ class Ball:
 
     def update(self, dt: float) -> None:
         self.x += self.vx * dt
-        self.y += self.vy * dt
-
+        if not self.stuck:
+            self.y += self.vy * dt
+        
     def render(self, surface):
         surface.blit(
             self.texture, (self.x, self.y), settings.FRAMES["balls"][self.frame]
@@ -125,3 +130,12 @@ class Ball:
             self.vx = -50 - 8 * d
         elif d < 0 and paddle.vx > 0 and pr.right < settings.VIRTUAL_HEIGHT:
             self.vx = 50 - 8 * d
+
+    def stick(self):
+        settings.VIRTUAL_HEIGHT - 40
+        self.vx = 0
+        self.stuck = True
+
+    def unstick(self):
+        self.vx = random.randint(-80, 80)
+        self.stuck = False

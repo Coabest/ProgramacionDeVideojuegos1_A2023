@@ -57,10 +57,17 @@ class PlayState(BaseState):
 
             # Check collision with the paddle
             if ball.collides(self.paddle):
-                settings.SOUNDS["paddle_hit"].stop()
-                settings.SOUNDS["paddle_hit"].play()
-                ball.rebound(self.paddle)
-                ball.push(self.paddle)
+                if not self.paddle.sticky:
+                    ball.rebound(self.paddle)
+                    ball.push(self.paddle)
+                else:
+                    ball.stick()
+                    self.paddle.sticky = False
+                    self.paddle.ballStuck = True
+                
+                if not ball.stuck:
+                    settings.SOUNDS["paddle_hit"].stop()
+                    settings.SOUNDS["paddle_hit"].play()
 
             # Check collision with brickset
             if not ball.collides(self.brickset):
@@ -90,15 +97,36 @@ class PlayState(BaseState):
                 )
                 self.paddle.inc_size()
 
-            # Chance to generate two more balls
+            # Chance to generate a powerup
+            #    3% Two more balls
+            #    3% Sticky Paddle
+            #    3% Laser
+            #    3% Shield
+            #    88% none
+            generatePowerup = random.random()
 
-            if random.random() < 0.1:
+            # Two more balls
+            if generatePowerup < 0.04:
                 r = brick.get_collision_rect()
                 self.powerups.append(
                     self.powerups_abstract_factory.get_factory("TwoMoreBall").create(
                         r.centerx - 8, r.centery - 8
                     )
                 )
+            # Sticky Paddle
+            elif generatePowerup < 0.08:
+                r = brick.get_collision_rect()
+                self.powerups.append(
+                    self.powerups_abstract_factory.get_factory("StickyPaddle").create(
+                        r.centerx - 8, r.centery - 8
+                    )
+                )
+            # Laser
+            # elif generatePowerup < 0.12:
+            #     pass
+            # # Shield
+            # elif generatePowerup < 0.16:
+            #     pass
 
         # Removing all balls that are not in play
         self.balls = [ball for ball in self.balls if ball.in_play]
@@ -190,13 +218,37 @@ class PlayState(BaseState):
         if input_id == "move_left":
             if input_data.pressed:
                 self.paddle.vx = -settings.PADDLE_SPEED
+                if self.paddle.ballStuck:
+                    for ball in self.balls:
+                        if ball.stuck and self.paddle.x != 0:
+                            ball.vx = -settings.PADDLE_SPEED
             elif input_data.released and self.paddle.vx < 0:
                 self.paddle.vx = 0
+                if self.paddle.ballStuck:
+                    for ball in self.balls:
+                        if ball.stuck:
+                            ball.vx = 0
+
         elif input_id == "move_right":
             if input_data.pressed:
                 self.paddle.vx = settings.PADDLE_SPEED
+                if self.paddle.ballStuck:
+                    for ball in self.balls:
+                        if ball.stuck and self.paddle.x != settings.VIRTUAL_WIDTH - self.paddle.width:
+                            ball.vx = settings.PADDLE_SPEED
             elif input_data.released and self.paddle.vx > 0:
                 self.paddle.vx = 0
+                if self.paddle.ballStuck:
+                    for ball in self.balls:
+                        if ball.stuck:
+                            ball.vx = 0
+
+        elif input_id == "enter" and self.paddle.ballStuck:
+            for ball in self.balls:
+                if ball.stuck:
+                    ball.unstick()
+            self.paddle.ballStuck = False
+
         elif input_id == "pause" and input_data.pressed:
             self.state_machine.change(
                 "pause",

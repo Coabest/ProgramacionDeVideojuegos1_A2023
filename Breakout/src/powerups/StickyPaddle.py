@@ -2,31 +2,31 @@
 ISPPJ1 2023
 Study Case: Breakout
 
-Author: Alejandro Mujica
-alejandro.j.mujic4@gmail.com
+Author: Coalbert Ramirez
+coabest15@gmail.com
 
-This file contains the specialization of PowerUp to add two more ball to the game.
+This file contains the specialization of PowerUp to Stick one ball to the paddle
 """
 import random
 from typing import TypeVar
 
-from gale.factory import Factory
-
 import settings
-from src.Ball import Ball
 from src.powerups.PowerUp import PowerUp
 
-
-class TwoMoreBall(PowerUp):
+class StickyPaddle(PowerUp):
     """
     Power-up to Stick one ball to the paddle
     """
 
     def __init__(self, x: int, y: int) -> None:
-        # Set StickyPaddle Powerup frame other than 8
-        super().__init__(x, y, 8)
-        self.ball_factory = Factory(Ball)
+        super().__init__(x, y, 9)
 
     def take(self, play_state: TypeVar("PlayState")) -> None:
         # Define StickyPaddle behaviour
+
+        settings.SOUNDS["paddle_hit"].stop()
+        settings.SOUNDS["paddle_hit"].play()
+
+        play_state.paddle.sticky = True
+
         self.in_play = False
