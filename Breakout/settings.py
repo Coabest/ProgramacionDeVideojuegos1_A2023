@@ -2,8 +2,9 @@
 ISPPJ1 2023
 Study Case: Breakout
 
-Author: Alejandro Mujica
-alejandro.j.mujic4@gmail.com
+Authors:
+Alejandro Mujica alejandro.j.mujic4@gmail.com
+Coalbert Ramirez coabest15@gmail.com
 
 This file contains the game settings that include the association of the
 inputs with an their ids, constants of values to set up the game, sounds,
@@ -21,6 +22,8 @@ from src.utilities.frames import (
     generate_ball_frames,
     generate_brick_frames,
     generate_powerups_frames,
+    generate_laser_frames,
+    generate_shield_frames
 )
 
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_ESCAPE, "quit")
@@ -82,6 +85,8 @@ FRAMES = {
     "hearts": generate_frames(TEXTURES["hearts"], 10, 9),
     "arrows": generate_frames(TEXTURES["arrows"], 24, 24),
     "powerups": generate_powerups_frames(),
+    "lasers": generate_laser_frames(),
+    "shields": generate_shield_frames(),
 }
 
 pygame.font.init()

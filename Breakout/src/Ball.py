@@ -2,8 +2,9 @@
 ISPPJ1 2023
 Study Case: Breakout
 
-Author: Alejandro Mujica
-alejandro.j.mujic4@gmail.com
+Authors:
+Alejandro Mujica alejandro.j.mujic4@gmail.com
+Coalbert Ramirez coabest15@gmail.com
 
 This file contains the class Ball.
 """
@@ -27,10 +28,11 @@ class Ball:
         self.vy = 0
 
         self.texture = settings.TEXTURES["spritesheet"]
-        self.frame = random.randint(0, 6)
+        self.frame = random.randint(0, 3)
         self.in_play = True
         
         self.stuck = False
+        self.relative = 0
 
     def get_collision_rect(self) -> pygame.Rect:
         return pygame.Rect(self.x, self.y, self.width, self.height)
@@ -62,10 +64,13 @@ class Ball:
     def collides(self, another: Any) -> bool:
         return self.get_collision_rect().colliderect(another.get_collision_rect())
 
-    def update(self, dt: float) -> None:
-        self.x += self.vx * dt
+    def update(self, dt: float, paddle_x: float) -> None:
         if not self.stuck:
+            self.distance_to_paddle = self.x - paddle_x
+            self.x += self.vx * dt
             self.y += self.vy * dt
+        else:
+            self.x = paddle_x + self.distance_to_paddle
         
     def render(self, surface):
         surface.blit(

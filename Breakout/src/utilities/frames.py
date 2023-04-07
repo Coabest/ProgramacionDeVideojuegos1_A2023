@@ -2,8 +2,9 @@
 ISPPJ1 2023
 Study Case: Breakout
 
-Author: Alejandro Mujica
-alejandro.j.mujic4@gmail.com
+Authors:
+Alejandro Mujica alejandro.j.mujic4@gmail.com
+Coalbert Ramirez coabest15@gmail.com
 
 This file contains some util functions to generate frames for the game textures.
 """
@@ -80,5 +81,30 @@ def generate_powerups_frames() -> List[pygame.Rect]:
 
     for j in range(10):
         frames.append(pygame.Rect(j * 16, y, 16, 16))
+
+    return frames
+
+def generate_laser_frames() -> List[pygame.Rect]:
+    # Gray ball
+    laser_size = 8
+    x = 96
+    y = 48 + laser_size
+
+    frames = []
+    for _ in range(2):
+        frames.append(pygame.Rect(x, y, laser_size, laser_size))
+        x += laser_size
+
+    return frames
+
+def generate_shield_frames() -> List[pygame.Rect]:
+    # Blue paddle segment
+    shield_width = 96
+    shield_height = 16
+    x = 16
+    y = 112
+
+    frames = []
+    frames.append(pygame.Rect(x, y, shield_width, shield_height))
 
     return frames

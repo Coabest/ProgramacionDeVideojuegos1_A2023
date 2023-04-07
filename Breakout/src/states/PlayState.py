@@ -2,8 +2,9 @@
 ISPPJ1 2023
 Study Case: Breakout
 
-Author: Alejandro Mujica
-alejandro.j.mujic4@gmail.com
+Authors:
+Alejandro Mujica alejandro.j.mujic4@gmail.com
+Coalbert Ramirez coabest15@gmail.com
 
 This file contains the class to define the Play state.
 """
@@ -42,6 +43,7 @@ class PlayState(BaseState):
             settings.SOUNDS["paddle_hit"].play()
 
         self.powerups_abstract_factory = AbstractFactory("src.powerups")
+        self.powerup_chance = 0.82 # 12%
 
         InputHandler.register_listener(self)
 
@@ -50,9 +52,32 @@ class PlayState(BaseState):
 
     def update(self, dt: float) -> None:
         self.paddle.update(dt)
+        # Check left laser collision with brickset
+        laserBalls = self.paddle.laserBalls
+        if laserBalls is not None:
+            LLaser = laserBalls.LLaser
+            if LLaser.collides(self.brickset) and LLaser.in_play:
+                Lbrick = self.brickset.get_colliding_brick(LLaser.get_collision_rect())
+                if Lbrick is not None:
+                    Lbrick.hit()
+                    self.score += Lbrick.score()
+                    laserBalls.destroy(Lbrick)
+                    self.brickset.update(dt)
+
+        # Check right laser collision with brickset
+        laserBalls = self.paddle.laserBalls
+        if laserBalls is not None:
+            RLaser = laserBalls.RLaser
+            if RLaser.collides(self.brickset) and RLaser.in_play:
+                Rbrick = self.brickset.get_colliding_brick(RLaser.get_collision_rect())
+                if Rbrick is not None:
+                    Rbrick.hit()
+                    self.score += Rbrick.score()
+                    laserBalls.destroy(Rbrick)
+                    self.brickset.update(dt)
 
         for ball in self.balls:
-            ball.update(dt)
+            ball.update(dt, self.paddle.x)
             ball.solve_world_boundaries()
 
             # Check collision with the paddle
@@ -82,51 +107,67 @@ class PlayState(BaseState):
             self.score += brick.score()
             ball.rebound(brick)
 
-            # Check earn life
-            if self.score >= self.points_to_next_live:
-                settings.SOUNDS["life"].play()
-                self.lives = min(3, self.lives + 1)
-                self.live_factor += 0.5
-                self.points_to_next_live += settings.LIVE_POINTS_BASE * self.live_factor
-
-            # Check growing up of the paddle
-            if self.score >= self.points_to_next_grow_up:
-                settings.SOUNDS["grow_up"].play()
-                self.points_to_next_grow_up += (
-                    settings.PADDLE_GROW_UP_POINTS * (self.paddle.size + 1) * self.level
-                )
-                self.paddle.inc_size()
-
-            # Chance to generate a powerup
-            #    3% Two more balls
-            #    3% Sticky Paddle
-            #    3% Laser
-            #    3% Shield
-            #    88% none
+            #   88% chance for nothing to drop
+            #   12% chance divided between the available Power-ups
+            #       - Two more balls
+            #       - Sticky Paddle
+            #       - Laser
+            #       - Shield
             generatePowerup = random.random()
 
-            # Two more balls
-            if generatePowerup < 0.04:
-                r = brick.get_collision_rect()
-                self.powerups.append(
-                    self.powerups_abstract_factory.get_factory("TwoMoreBall").create(
-                        r.centerx - 8, r.centery - 8
+            # Power-up selection
+            if generatePowerup < self.powerup_chance:
+                # taken Power-ups are not elegible to drop again
+                posible_powerups = ["two"]
+                if not self.paddle.ballStuck:
+                    posible_powerups.append("sticky")
+                if not self.paddle.loaded:
+                    posible_powerups.append("laser")
+
+                selectPowerup = random.choice(posible_powerups)
+
+                # Two more balls
+                if selectPowerup == "two":
+                    r = brick.get_collision_rect()
+                    self.powerups.append(
+                        self.powerups_abstract_factory.get_factory("TwoMoreBall").create(
+                            r.centerx - 8, r.centery - 8
+                        )
                     )
-                )
-            # Sticky Paddle
-            elif generatePowerup < 0.08:
-                r = brick.get_collision_rect()
-                self.powerups.append(
-                    self.powerups_abstract_factory.get_factory("StickyPaddle").create(
-                        r.centerx - 8, r.centery - 8
+                # Sticky Paddle
+                elif selectPowerup == "sticky":
+                    r = brick.get_collision_rect()
+                    self.powerups.append(
+                        self.powerups_abstract_factory.get_factory("StickyPaddle").create(
+                            r.centerx - 8, r.centery - 8
+                        )
                     )
-                )
-            # Laser
-            # elif generatePowerup < 0.12:
-            #     pass
-            # # Shield
-            # elif generatePowerup < 0.16:
-            #     pass
+                # Laser
+                elif selectPowerup == "laser":
+                    r = brick.get_collision_rect()
+                    self.powerups.append(
+                        self.powerups_abstract_factory.get_factory("Laser").create(
+                            r.centerx - 8, r.centery - 8
+                        )
+                    )
+                # # Shield
+                # elif selectPowerup < chance*:
+                #     pass
+
+        # Check earn life
+        if self.score >= self.points_to_next_live:
+            settings.SOUNDS["life"].play()
+            self.lives = min(3, self.lives + 1)
+            self.live_factor += 0.5
+            self.points_to_next_live += settings.LIVE_POINTS_BASE * self.live_factor
+
+        # Check growing up of the paddle
+        if self.score >= self.points_to_next_grow_up:
+            settings.SOUNDS["grow_up"].play()
+            self.points_to_next_grow_up += (
+                settings.PADDLE_GROW_UP_POINTS * (self.paddle.size + 1) * self.level
+            )
+            self.paddle.inc_size()
 
         # Removing all balls that are not in play
         self.balls = [ball for ball in self.balls if ball.in_play]
@@ -218,36 +259,24 @@ class PlayState(BaseState):
         if input_id == "move_left":
             if input_data.pressed:
                 self.paddle.vx = -settings.PADDLE_SPEED
-                if self.paddle.ballStuck:
-                    for ball in self.balls:
-                        if ball.stuck and self.paddle.x != 0:
-                            ball.vx = -settings.PADDLE_SPEED
             elif input_data.released and self.paddle.vx < 0:
                 self.paddle.vx = 0
-                if self.paddle.ballStuck:
-                    for ball in self.balls:
-                        if ball.stuck:
-                            ball.vx = 0
 
         elif input_id == "move_right":
             if input_data.pressed:
                 self.paddle.vx = settings.PADDLE_SPEED
-                if self.paddle.ballStuck:
-                    for ball in self.balls:
-                        if ball.stuck and self.paddle.x != settings.VIRTUAL_WIDTH - self.paddle.width:
-                            ball.vx = settings.PADDLE_SPEED
             elif input_data.released and self.paddle.vx > 0:
                 self.paddle.vx = 0
-                if self.paddle.ballStuck:
-                    for ball in self.balls:
-                        if ball.stuck:
-                            ball.vx = 0
 
         elif input_id == "enter" and self.paddle.ballStuck:
             for ball in self.balls:
                 if ball.stuck:
                     ball.unstick()
             self.paddle.ballStuck = False
+
+        elif input_id == "move_down" and self.paddle.loaded:
+            self.paddle.fire()
+            self.paddle.loaded = False
 
         elif input_id == "pause" and input_data.pressed:
             self.state_machine.change(

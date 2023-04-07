@@ -19,11 +19,10 @@ class StickyPaddle(PowerUp):
     """
 
     def __init__(self, x: int, y: int) -> None:
-        super().__init__(x, y, 9)
+        super().__init__(x, y, 0)
 
     def take(self, play_state: TypeVar("PlayState")) -> None:
         # Define StickyPaddle behaviour
-
         settings.SOUNDS["paddle_hit"].stop()
         settings.SOUNDS["paddle_hit"].play()
 
