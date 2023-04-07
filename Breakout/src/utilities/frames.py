@@ -98,7 +98,7 @@ def generate_laser_frames() -> List[pygame.Rect]:
     return frames
 
 def generate_shield_frames() -> List[pygame.Rect]:
-    # Blue paddle segment
+    # Green paddle segment
     shield_width = 96
     shield_height = 16
     x = 16

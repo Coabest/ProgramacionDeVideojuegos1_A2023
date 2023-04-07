@@ -7,13 +7,10 @@ coabest15@gmail.com
 
 This file contains the specialization of PowerUp to stop the balls from falling past the paddle for a while
 """
-import random
 from typing import TypeVar
 
 from gale.factory import Factory
-
-import settings
-from src.Ball import Ball
+from src.Barrier import Barrier
 from src.powerups.PowerUp import PowerUp
 
 
@@ -23,10 +20,10 @@ class Shield(PowerUp):
     """
 
     def __init__(self, x: int, y: int) -> None:
-        # Set  Powerup frame other than 8
-        super().__init__(x, y, 8)
-        self.ball_factory = Factory(Ball)
+        super().__init__(x, y, 1)
+        self.barrier_factory = Factory(Barrier)
 
     def take(self, play_state: TypeVar("PlayState")) -> None:
-        # Define Shield behaviour
+        play_state.barrier = self.barrier_factory.create(-24, play_state.paddle.y + 16)
+        play_state.barrier_up = True
         self.in_play = False

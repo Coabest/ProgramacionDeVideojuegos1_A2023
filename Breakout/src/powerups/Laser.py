@@ -27,7 +27,6 @@ class Laser(PowerUp):
         super().__init__(x, y, 4)
 
     def take(self, play_state: TypeVar("PlayState")) -> None:
-        # Define Laser behaviour
         settings.SOUNDS["paddle_hit"].stop()
         settings.SOUNDS["paddle_hit"].play()
 

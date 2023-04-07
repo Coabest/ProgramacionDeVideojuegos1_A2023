@@ -7,7 +7,6 @@ coabest15@gmail.com
 
 This file contains the specialization of PowerUp to Stick one ball to the paddle
 """
-import random
 from typing import TypeVar
 
 import settings
@@ -22,7 +21,6 @@ class StickyPaddle(PowerUp):
         super().__init__(x, y, 0)
 
     def take(self, play_state: TypeVar("PlayState")) -> None:
-        # Define StickyPaddle behaviour
         settings.SOUNDS["paddle_hit"].stop()
         settings.SOUNDS["paddle_hit"].play()
 

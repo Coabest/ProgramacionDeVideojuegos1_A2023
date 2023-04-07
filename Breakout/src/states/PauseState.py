@@ -18,6 +18,7 @@ class PauseState(BaseState):
         self.live_factor = params["live_factor"]
         self.points_to_next_live = params["points_to_next_live"]
         self.powerups = params["powerups"]
+        self.barrier = params["barrier"]
         settings.SOUNDS["pause"].play()
         InputHandler.register_listener(self)
 
@@ -55,6 +56,7 @@ class PauseState(BaseState):
 
         self.brickset.render(surface)
         self.paddle.render(surface)
+        self.barrier.render(surface)
 
         render_text(
             surface,
@@ -79,5 +81,6 @@ class PauseState(BaseState):
                 points_to_next_live=self.points_to_next_live,
                 live_factor=self.live_factor,
                 powerups=self.powerups,
+                barrier=self.barrier,
                 resume=True,
             )

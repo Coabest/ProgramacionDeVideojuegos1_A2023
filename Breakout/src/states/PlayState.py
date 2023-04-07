@@ -43,7 +43,16 @@ class PlayState(BaseState):
             settings.SOUNDS["paddle_hit"].play()
 
         self.powerups_abstract_factory = AbstractFactory("src.powerups")
-        self.powerup_chance = 0.82 # 12%
+        
+        #   85% chance of not dropping anything
+        #   15% chance divided between the available Power-ups
+        #       - Two more balls
+        #       - Sticky Paddle
+        #       - Laser
+        #       - Shield
+        self.powerup_chance = 0.15
+
+        self.barrier = params.get("barrier", None)
 
         InputHandler.register_listener(self)
 
@@ -52,6 +61,7 @@ class PlayState(BaseState):
 
     def update(self, dt: float) -> None:
         self.paddle.update(dt)
+        # self.barrier.update(dt)
         # Check left laser collision with brickset
         laserBalls = self.paddle.laserBalls
         if laserBalls is not None:
@@ -93,6 +103,15 @@ class PlayState(BaseState):
                 if not ball.stuck:
                     settings.SOUNDS["paddle_hit"].stop()
                     settings.SOUNDS["paddle_hit"].play()
+            
+            # Check collision with the barrier
+            if self.barrier is not None and ball.collides(self.barrier):
+                settings.SOUNDS["paddle_hit"].stop()
+                settings.SOUNDS["paddle_hit"].play()
+                ball.rebound(self.barrier)
+                self.barrier.hit()
+                if not self.barrier.in_play:
+                    self.barrier = None
 
             # Check collision with brickset
             if not ball.collides(self.brickset):
@@ -107,12 +126,6 @@ class PlayState(BaseState):
             self.score += brick.score()
             ball.rebound(brick)
 
-            #   88% chance for nothing to drop
-            #   12% chance divided between the available Power-ups
-            #       - Two more balls
-            #       - Sticky Paddle
-            #       - Laser
-            #       - Shield
             generatePowerup = random.random()
 
             # Power-up selection
@@ -123,6 +136,8 @@ class PlayState(BaseState):
                     posible_powerups.append("sticky")
                 if not self.paddle.loaded:
                     posible_powerups.append("laser")
+                if self.barrier is None:
+                    posible_powerups.append("barrier")
 
                 selectPowerup = random.choice(posible_powerups)
 
@@ -150,9 +165,14 @@ class PlayState(BaseState):
                             r.centerx - 8, r.centery - 8
                         )
                     )
-                # # Shield
-                # elif selectPowerup < chance*:
-                #     pass
+                # Shield
+                elif selectPowerup == "barrier":
+                    r = brick.get_collision_rect()
+                    self.powerups.append(
+                        self.powerups_abstract_factory.get_factory("Shield").create(
+                            r.centerx - 8, r.centery - 8
+                        )
+                    )
 
         # Check earn life
         if self.score >= self.points_to_next_live:
@@ -179,6 +199,8 @@ class PlayState(BaseState):
             if self.lives == 0:
                 self.state_machine.change("game_over", score=self.score)
             else:
+                self.paddle.laserBalls = None
+                self.paddle.loaded = False
                 self.paddle.dec_size()
                 self.state_machine.change(
                     "serve",
@@ -205,6 +227,9 @@ class PlayState(BaseState):
         if self.brickset.size == 1 and next(
             (True for _, b in self.brickset.bricks.items() if b.broken), False
         ):
+            self.paddle.laserBalls = None
+            self.paddle.loaded = False
+            self.balls = []
             self.state_machine.change(
                 "victory",
                 lives=self.lives,
@@ -249,6 +274,9 @@ class PlayState(BaseState):
 
         self.paddle.render(surface)
 
+        if self.barrier is not None:
+            self.barrier.render(surface)
+
         for ball in self.balls:
             ball.render(surface)
 
@@ -290,4 +318,5 @@ class PlayState(BaseState):
                 points_to_next_live=self.points_to_next_live,
                 live_factor=self.live_factor,
                 powerups=self.powerups,
+                barrier=self.barrier,
             )
