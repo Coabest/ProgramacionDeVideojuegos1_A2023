@@ -34,6 +34,7 @@
     PlayState.py
         - Added:
             - powerup_chance, probability to drop Power-up when breaking a brick
+            - barrier, object that collides with balls stopping them from falling
 
         - Modified:
             - update()

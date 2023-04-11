@@ -56,7 +56,8 @@ class PauseState(BaseState):
 
         self.brickset.render(surface)
         self.paddle.render(surface)
-        self.barrier.render(surface)
+        if self.barrier is not None:
+            self.barrier.render(surface)
 
         render_text(
             surface,

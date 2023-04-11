@@ -25,5 +25,4 @@ class Shield(PowerUp):
 
     def take(self, play_state: TypeVar("PlayState")) -> None:
         play_state.barrier = self.barrier_factory.create(-24, play_state.paddle.y + 16)
-        play_state.barrier_up = True
         self.in_play = False

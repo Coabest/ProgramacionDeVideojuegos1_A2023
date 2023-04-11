@@ -39,18 +39,18 @@ class PlayState(BaseState):
 
         if not params.get("resume", False):
             self.balls[0].vx = random.randint(-80, 80)
-            self.balls[0].vy = random.randint(-170, -100)
+            self.balls[0].vy = random.randint(-160, -120)
             settings.SOUNDS["paddle_hit"].play()
 
         self.powerups_abstract_factory = AbstractFactory("src.powerups")
         
-        #   85% chance of not dropping anything
-        #   15% chance divided between the available Power-ups
+        #   65% chance of not dropping anything
+        #   35% chance divided between the available Power-ups
         #       - Two more balls
         #       - Sticky Paddle
         #       - Laser
         #       - Shield
-        self.powerup_chance = 0.15
+        self.powerup_chance = 0.35
 
         self.barrier = params.get("barrier", None)
 
@@ -61,7 +61,18 @@ class PlayState(BaseState):
 
     def update(self, dt: float) -> None:
         self.paddle.update(dt)
-        # self.barrier.update(dt)
+
+        if self.paddle.ballStuck:
+            self.paddle.sticky_timer -= dt
+
+            if self.paddle.sticky_timer < 0:
+                self.paddle.ballStuck = False
+
+                for ball in self.balls:
+                    if ball.stuck:
+                        ball.unstick()
+                
+                
         # Check left laser collision with brickset
         laserBalls = self.paddle.laserBalls
         if laserBalls is not None:
@@ -86,6 +97,11 @@ class PlayState(BaseState):
                     laserBalls.destroy(Rbrick)
                     self.brickset.update(dt)
 
+        if self.barrier is not None:
+            self.barrier.update(dt)
+            if not self.barrier.in_play:
+                self.barrier = None
+
         for ball in self.balls:
             ball.update(dt, self.paddle.x)
             ball.solve_world_boundaries()
@@ -97,9 +113,8 @@ class PlayState(BaseState):
                     ball.push(self.paddle)
                 else:
                     ball.stick()
-                    self.paddle.sticky = False
-                    self.paddle.ballStuck = True
-                
+                    self.paddle.stickBall()
+                                    
                 if not ball.stuck:
                     settings.SOUNDS["paddle_hit"].stop()
                     settings.SOUNDS["paddle_hit"].play()
@@ -157,6 +172,7 @@ class PlayState(BaseState):
                             r.centerx - 8, r.centery - 8
                         )
                     )
+
                 # Laser
                 elif selectPowerup == "laser":
                     r = brick.get_collision_rect()
@@ -300,7 +316,7 @@ class PlayState(BaseState):
             for ball in self.balls:
                 if ball.stuck:
                     ball.unstick()
-            self.paddle.ballStuck = False
+            self.paddle.unstickBall()
 
         elif input_id == "move_down" and self.paddle.loaded:
             self.paddle.fire()

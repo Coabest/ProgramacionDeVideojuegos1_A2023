@@ -25,5 +25,10 @@ class StickyPaddle(PowerUp):
         settings.SOUNDS["paddle_hit"].play()
 
         play_state.paddle.sticky = True
+        if play_state.paddle.ballStuck:
+            play_state.paddle.sticky_timer = 10
+            for ball in play_state.balls:
+                if ball.stuck:
+                    ball.sticky_timer = 10
 
         self.in_play = False

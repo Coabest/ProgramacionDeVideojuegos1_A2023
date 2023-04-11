@@ -36,6 +36,10 @@ class Paddle:
         # The paddle only moves horizontally
         self.vx = 0
 
+        self.frame_freq = 15
+        self.frame_timer = 0
+        # Duration of the Power-up in seconds
+        self.sticky_timer = 10
         self.sticky = False
         self.ballStuck = False
 
@@ -75,6 +79,15 @@ class Paddle:
         surface.blit(self.texture, (self.x, self.y), self.frames[self.skin][self.size])
         if self.laserBalls is not None:
             self.laserBalls.render(surface)
+
+    def stickBall(self) -> None:
+        self.sticky_timer = 10
+        self.sticky = False
+        self.ballStuck = True
+
+    def unstickBall(self) -> None:
+        self.sticky_timer = -1
+        self.ballStuck = False
 
     def addLasers(self) -> None:
         self.laserBalls = self.laser_factory.create(self.x, self.y)

@@ -27,6 +27,8 @@ class LaserBalls:
         self.frame = 0
         self.frame_freq = 15
         self.frame_timer = 0
+        # Duration of the Power-up in seconds
+        self.timer = 10
         self.loaded = True
         self.fired = False
         self.in_play = True
@@ -42,13 +44,19 @@ class LaserBalls:
         if not self.in_play:
             return
         
+        self.timer -= dt
+        if self.timer < 0:
+            self.in_play = False
+        
         self.loaded = loaded
         self.x = paddle_x
         
-        # Laser blink effect
-        self.frame_timer = (self.frame_timer + 1)%self.frame_freq
-        if not self.frame_timer:
-            self.frame ^= 1
+        # Laser blink effect starts at 4 seconds remaining
+        if self.timer < 4:
+            mod = int(max(7, self.frame_freq - int(1/(self.timer)*2)))
+            self.frame_timer = (self.frame_timer + 1)%mod
+            if not self.frame_timer:
+                self.frame ^= 1
 
         self.LLaser.update(dt, self.x + 4, self.fired)
         self.RLaser.update(dt, self.x + 32 + 32*paddle_size - 12, self.fired)

@@ -30,7 +30,8 @@ class Laser(PowerUp):
         settings.SOUNDS["paddle_hit"].stop()
         settings.SOUNDS["paddle_hit"].play()
 
-        play_state.paddle.addLasers()
+        if not play_state.paddle.loaded:
+            play_state.paddle.addLasers()
 
         self.in_play = False
 

@@ -29,6 +29,10 @@ class Ball:
 
         self.texture = settings.TEXTURES["spritesheet"]
         self.frame = random.randint(0, 3)
+        self.frame_freq = 15
+        self.frame_timer = 0
+        # Duration of the glued ball Power-up in seconds
+        self.sticky_timer = 10
         self.in_play = True
         
         self.stuck = False
@@ -70,7 +74,19 @@ class Ball:
             self.x += self.vx * dt
             self.y += self.vy * dt
         else:
+            
+            self.sticky_timer -= dt
+            if self.sticky_timer < 0:
+                self.unstick()
+                self.sticky_timer = 10
             self.x = paddle_x + self.distance_to_paddle
+             # Laser blink effect starts at 4 seconds remaining
+            if self.sticky_timer < 4:
+                mod = int(max(7, self.frame_freq - int(1/(self.sticky_timer)*2)))
+                self.frame_timer = (self.frame_timer + 1)%mod
+                if not self.frame_timer:
+                    self.frame ^= 1
+
         
     def render(self, surface):
         surface.blit(
@@ -140,7 +156,10 @@ class Ball:
         settings.VIRTUAL_HEIGHT - 40
         self.vx = 0
         self.stuck = True
+        self.sticky_timer = 10
 
     def unstick(self):
         self.vx = random.randint(-80, 80)
+        self.vy = random.randint(-160, -120)
         self.stuck = False
+        self.sticky_timer = -1
