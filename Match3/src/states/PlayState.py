@@ -2,8 +2,10 @@
 ISPPJ1 2023
 Study Case: Match-3
 
-Author: Alejandro Mujica
-alejandro.j.mujic4@gmail.com
+Authors:
+Alejandro Mujica alejandro.j.mujic4@gmail.com
+Coalbert Ramirez coabest15@gmail.com
+Paul Barreto six.stream@gmail.com
 
 This file contains the class PlayState.
 """
@@ -216,7 +218,6 @@ class PlayState(BaseState):
         i = self.old_i
         j = self.old_j
 
-        print(f" Called pop_cross from tile ({i}, {j})")
         matches = self.board.calculate_cross_matches([self.board.tiles[i][j]])
         self.score += settings.BOARD_HEIGHT + settings.BOARD_WIDTH - 1
         self.board.remove_matches()
@@ -235,7 +236,6 @@ class PlayState(BaseState):
         i = self.old_i
         j = self.old_j
 
-        print(f" Called pop_cross from tile ({i}, {j})")
         matches = self.board.calculate_star_matches([self.board.tiles[i][j]])
         self.score += len(matches) * 50
         self.board.remove_matches()
@@ -342,10 +342,8 @@ class PlayState(BaseState):
                 # if there is not a tile swap, return the grabbed tile to its original position
                 if not tile_swapped:
                     if self.board.tiles[self.highlighted_i1][self.highlighted_j1].is_cross:
-                        print("Picked up a cross power up")
                         self.pop_cross()
                     elif self.board.tiles[self.highlighted_i1][self.highlighted_j1].is_star:
-                        print("Picked up a star power up")
                         self.pop_star()
                     else:
                         self.board.tiles[self.highlighted_i1][self.highlighted_j1].y = self.old_y
@@ -371,10 +369,6 @@ class PlayState(BaseState):
             if len(match) == 4:
                 tile = match[-1]
                 self.board.tiles[tile.i][tile.j].is_cross = True
-                for match_ in self.board.matches:
-                    for tile in match_:
-                        print(f"({tile.i},{tile.j})", end='')
-                print("")
                 self.board.matches[0] = self.board.matches[0][:-1]
                 match = match[:-1]
                 self.score += 50

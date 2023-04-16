@@ -277,7 +277,6 @@ class Board:
                 if j < settings.BOARD_WIDTH - 1:
                     self.tiles[i][ j ], self.tiles[i][j+1] = self.tiles[i][j+1], self.tiles[i][ j ]
                     if self.__check_match(i, j):
-                        # print(f"match if you move r{i}, c{j}")
                         match_found = True
                     if self.__check_match(i, j+1):
                         match_found = True
@@ -288,22 +287,12 @@ class Board:
                 if i < settings.BOARD_HEIGHT - 1:
                     self.tiles[ i ][j], self.tiles[i+1][j] = self.tiles[i+1][j], self.tiles[ i ][j]
                     if self.__check_match(i, j):
-                        # print(f"match if you move r{i}, c{j}")
                         match_found = True
                     if self.__check_match(i+1, j):
                         match_found = True
                     # Revert Vertical swap
                     self.tiles[ i ][j], self.tiles[i+1][j] = self.tiles[i+1][j], self.tiles[ i ][j]
-
-                # if match_found:
-                #     delattr(self, "in_match")
-                #     delattr(self, "in_stack")
-                    # return True
                 
-        if not match_found:
-            print("NO MATCHES")
-        # print("")
-
         delattr(self, "in_match")
         delattr(self, "in_stack")
         return match_found
