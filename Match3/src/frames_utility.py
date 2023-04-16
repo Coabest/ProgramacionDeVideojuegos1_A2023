@@ -22,7 +22,7 @@ def generate_tile_frames(spritesheet: pygame.Surface) -> List[List[pygame.Rect]]
     rows_counter = 0
 
     # There are 9 rows
-    for _ in range(9):
+    for _ in range(4): ### 9
 
         # There are two sets of 6 tiles of the same color and different
         # variety.
@@ -37,7 +37,7 @@ def generate_tile_frames(spritesheet: pygame.Surface) -> List[List[pygame.Rect]]
 
             rows_counter += 1
 
-        y += settings.TILE_SIZE
+        y += settings.TILE_SIZE*2 ### ~2~
         x = 0
 
     return frames

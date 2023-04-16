@@ -25,7 +25,7 @@ class Board:
         self.tiles: List[List[Tile]] = []
         self.__initialize_tiles()
 
-    def render(self, surface: pygame.Surface) -> None:
+    def render(self, surface: pygame.Surface, r: int=None, c: int=None) -> None:
         for row in self.tiles:
             for tile in row:
                 tile.render(surface, self.x, self.y)
@@ -124,6 +124,7 @@ class Board:
                 self.in_match.add(tile)
                 match.append(tile)
 
+
         for t in match:
             match += self.__calculate_match_rec(t)
 
@@ -146,6 +147,33 @@ class Board:
         delattr(self, "in_match")
         delattr(self, "in_stack")
 
+        return self.matches if len(self.matches) > 0 else None
+
+    def calculate_cross_matches(self, new_tiles: List[Tile]) -> Optional[List[List[Tile]]]:
+        for tile in new_tiles:
+            new_match = []
+            for row in range(settings.BOARD_HEIGHT):
+                for col in range(settings.BOARD_WIDTH):
+                    if self.tiles[row][col] in new_match:
+                        continue
+                    if row == tile.i or col == tile.j:
+                        new_match.append(self.tiles[row][col])
+            self.matches.append(new_match)
+
+        return self.matches if len(self.matches) > 0 else None
+        
+    def calculate_star_matches(self, new_tiles: List[Tile]) -> Optional[List[List[Tile]]]:
+        for tile in new_tiles:
+            color = tile.color
+            new_match = []
+            for row in range(settings.BOARD_HEIGHT):
+                for col in range(settings.BOARD_WIDTH):
+                    if self.tiles[row][col] in new_match:
+                        continue
+                    if self.tiles[row][col].color == color: 
+                        new_match.append(self.tiles[row][col])
+            self.matches.append(new_match)
+        
         return self.matches if len(self.matches) > 0 else None
 
     def remove_matches(self) -> None:
@@ -207,3 +235,78 @@ class Board:
                     tweens.append((tile, {"y": tile.i * settings.TILE_SIZE}))
 
         return tweens
+
+    def __check_match(self, i: int, j: int) -> bool:
+        if (
+            i >= 2
+            and self.tiles[i - 1][j].color == self.tiles[i][j].color
+            and self.tiles[i - 2][j].color == self.tiles[i][j].color
+        ):
+            return True
+        if (
+            i < settings.BOARD_HEIGHT - 2
+            and self.tiles[i + 1][j].color == self.tiles[i][j].color
+            and self.tiles[i + 2][j].color == self.tiles[i][j].color
+        ):
+            return True
+
+        if (
+            j >= 2
+            and self.tiles[i][j - 1].color == self.tiles[i][j].color
+            and self.tiles[i][j - 2].color == self.tiles[i][j].color
+        ):
+            return True
+        
+        if (
+            j < settings.BOARD_WIDTH - 2
+            and self.tiles[i][j + 1].color == self.tiles[i][j].color
+            and self.tiles[i][j + 2].color == self.tiles[i][j].color
+        ):
+            return True
+        return False
+
+    def matches_posible(self) -> bool:
+        self.in_match: Set[Tile] = set()
+        self.in_stack: Set[Tile] = set()
+        
+        match_found = False
+        for i in range(settings.BOARD_HEIGHT):
+            for j in range(settings.BOARD_WIDTH):
+                
+                # Horizontal swap
+                if j < settings.BOARD_WIDTH - 1:
+                    self.tiles[i][ j ], self.tiles[i][j+1] = self.tiles[i][j+1], self.tiles[i][ j ]
+                    if self.__check_match(i, j):
+                        # print(f"match if you move r{i}, c{j}")
+                        match_found = True
+                    if self.__check_match(i, j+1):
+                        match_found = True
+                    # Rvert Horizontal swap
+                    self.tiles[i][ j ], self.tiles[i][j+1] = self.tiles[i][j+1], self.tiles[i][ j ]
+                
+                # Vertical swap
+                if i < settings.BOARD_HEIGHT - 1:
+                    self.tiles[ i ][j], self.tiles[i+1][j] = self.tiles[i+1][j], self.tiles[ i ][j]
+                    if self.__check_match(i, j):
+                        # print(f"match if you move r{i}, c{j}")
+                        match_found = True
+                    if self.__check_match(i+1, j):
+                        match_found = True
+                    # Revert Vertical swap
+                    self.tiles[ i ][j], self.tiles[i+1][j] = self.tiles[i+1][j], self.tiles[ i ][j]
+
+                # if match_found:
+                #     delattr(self, "in_match")
+                #     delattr(self, "in_stack")
+                    # return True
+                
+        if not match_found:
+            print("NO MATCHES")
+        # print("")
+
+        delattr(self, "in_match")
+        delattr(self, "in_stack")
+        return match_found
+
+    def reorder(self) -> None:
+        random.shuffle(self.tiles)

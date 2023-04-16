@@ -140,7 +140,7 @@ class StartState(BaseState):
             if self.current_menu_item == 1:
                 self.active = False
                 Timer.tween(
-                    1,
+                    0.5,
                     [(self, {"alpha_transition": 255})],
                     on_finish=lambda: self.state_machine.change("begin"),
                 )

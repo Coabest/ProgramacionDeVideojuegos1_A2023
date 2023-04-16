@@ -20,6 +20,11 @@ class Tile:
         self.y = self.i * settings.TILE_SIZE
         self.color = color
         self.variety = variety
+
+        # Power-ups
+        self.is_cross = False
+        self.is_star = False
+        
         self.alpha_surface = pygame.Surface(
             (settings.TILE_SIZE, settings.TILE_SIZE), pygame.SRCALPHA
         )
@@ -37,6 +42,11 @@ class Tile:
             border_radius=7,
         )
         surface.blit(self.alpha_surface, (self.x + 2 + offset_x, self.y + 2 + offset_y))
+        if self.is_cross:
+            self.variety = 1
+        elif self.is_star:
+            self.variety = 5
+    
         surface.blit(
             settings.TEXTURES["tiles"],
             (self.x + offset_x, self.y + offset_y),

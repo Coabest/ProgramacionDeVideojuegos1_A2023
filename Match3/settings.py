@@ -23,6 +23,10 @@ input_handler.InputHandler.set_keyboard_action(input_handler.KEY_RETURN, "enter"
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_UP, "up")
 input_handler.InputHandler.set_keyboard_action(input_handler.KEY_DOWN, "down")
 input_handler.InputHandler.set_mouse_click_action(input_handler.MOUSE_BUTTON_1, "click")
+input_handler.InputHandler.set_mouse_motion_action(input_handler.MOUSE_MOTION_UP, "mouse_up")
+input_handler.InputHandler.set_mouse_motion_action(input_handler.MOUSE_MOTION_RIGHT, "mouse_right")
+input_handler.InputHandler.set_mouse_motion_action(input_handler.MOUSE_MOTION_DOWN, "mouse_down")
+input_handler.InputHandler.set_mouse_motion_action(input_handler.MOUSE_MOTION_LEFT, "mouse_left")
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -33,15 +37,18 @@ VIRTUAL_HEIGHT = 288
 BOARD_WIDTH = 8
 BOARD_HEIGHT = 8
 
+BOARD_X = 240
+BOARD_Y = 16
+
 TILE_SIZE = 32
 
-NUM_VARIETIES = 6
-NUM_COLORS = 18
+NUM_VARIETIES = 1
+NUM_COLORS = 4
 
 BACKGROUND_SCROLL_SPEED = 40
 BACKGROUND_LOOPING_POINT = -1024 + VIRTUAL_WIDTH - 4 + 51
 
-LEVEL_TIME = 60
+LEVEL_TIME = 6000
 
 BASE_DIR = Path(__file__).parent
 

@@ -22,7 +22,7 @@ from src.Board import Board
 class BeginGameState(BaseState):
     def enter(self, **enter_params: Dict[str, Any]) -> None:
         self.transition_alpha = 255
-        self.board = Board(settings.VIRTUAL_WIDTH - 272, 16)
+        self.board = Board(settings.BOARD_X, settings.BOARD_Y)
         self.level_label_y = -64
         self.level = enter_params.get("level", 1)
         self.score = enter_params.get("score", 0)
@@ -35,19 +35,19 @@ class BeginGameState(BaseState):
         # first, over a period of 1 second, transition out alpha to 0
         # (fade-in).
         Timer.tween(
-            1,
+            0.25, # 1.0
             [(self, {"transition_alpha": 0})],
             # once that is finished, start a transition of our text label to
             # center of the screen over 0.25 seconds
             on_finish=lambda: Timer.tween(
-                0.25,
+                0.15, # 0.25
                 [(self, {"level_label_y": settings.VIRTUAL_HEIGHT // 2 - 30})],
                 # after that, pause for 1.5 second with Timer.after
                 on_finish=lambda: Timer.after(
-                    1.5,
+                    0.5, # 1.5
                     # Then, animate the label going down past the bottom edge
                     lambda: Timer.tween(
-                        0.25,
+                        0.15, # 0.25
                         [(self, {"level_label_y": settings.VIRTUAL_HEIGHT + 30})],
                         # We are ready to play
                         on_finish=lambda: self.state_machine.change(
