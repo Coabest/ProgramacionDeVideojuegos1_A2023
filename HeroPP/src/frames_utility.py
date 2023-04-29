@@ -42,11 +42,10 @@ def generate_floor_frames(spritesheet: pygame.Surface) -> List[List[pygame.Rect]
     x, y = 0, 0
     col_counter = 0
 
-    # There are 5 columns
     for _ in range(5):
         frames.append([])
         for _ in range(4):
-            frames[col_counter].append( pygame.Rect(x, y, settings.TILE_SIZE, settings.TILE_SIZE))
+            frames[col_counter].append(pygame.Rect(x, y, settings.TILE_SIZE, settings.TILE_SIZE))
             y += settings.TILE_SIZE
         col_counter += 1
 
@@ -60,30 +59,16 @@ def generate_obstacles_frames(spritesheet: pygame.Surface) -> List[List[pygame.R
     x, y = 0, 0
     rows_counter = 0
 
-    # [ [aam, aro, aaz], [r1, r2, r3] ]
-
-    for _ in range(2):
+    for _ in range(5):
         frames.append([])
 
-        for _ in range(1):
+        for _ in range(6):
             frames[rows_counter].append(pygame.Rect(x, y, settings.TILE_SIZE, settings.TILE_SIZE))
             x += settings.TILE_SIZE
         rows_counter += 1
 
         y += settings.TILE_SIZE
         x = 0
-
-    return frames
-
-def generate_wall_frames(spritesheet: pygame.Surface) -> List[List[pygame.Rect]]:
-    pass
-    frames = []
-    x, y = 0, 0
-
-    frames.append([])
-    for _ in range(4):
-        frames[0].append(pygame.Rect(x, y, settings.TILE_SIZE, settings.TILE_SIZE))
-        y += settings.TILE_SIZE
 
     return frames
 
@@ -96,6 +81,24 @@ def generate_enemies_frames(spritesheet: pygame.Surface) -> List[List[pygame.Rec
     for _ in range(7):
         frames.append([])
         for _ in range(3):
+            frames[rows_counter].append(pygame.Rect(x, y, settings.TILE_SIZE, settings.TILE_SIZE))
+            x += settings.TILE_SIZE
+
+        rows_counter += 1
+
+        y += settings.TILE_SIZE
+        x = 0
+
+    return frames
+
+def generate_bosses_frames(spritesheet: pygame.Surface) -> List[List[pygame.Rect]]:
+    frames = []
+    x, y = 0, 0
+    rows_counter = 0
+
+    for _ in range(1):
+        frames.append([])
+        for _ in range(2):
             frames[rows_counter].append(pygame.Rect(x, y, settings.TILE_SIZE, settings.TILE_SIZE))
             x += settings.TILE_SIZE
 

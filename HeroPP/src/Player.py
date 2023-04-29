@@ -22,6 +22,9 @@ class Player:
 
         self.level = 0
         self.frame = 0
+        self.power = 3
+        self.health = 20
+        self.alive = True
         
         self.alpha_surface = pygame.Surface(
             (settings.TILE_SIZE, settings.TILE_SIZE), pygame.SRCALPHA

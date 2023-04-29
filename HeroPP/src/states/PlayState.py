@@ -26,7 +26,8 @@ import settings
 class PlayState(BaseState):
     def enter(self, **enter_params: Dict[str, Any]) -> None:
         self.level = enter_params["level"]
-        self.board = enter_params["board"]
+        # self.board = enter_params["board"]
+        self.board = Board(settings.BOARD_X, settings.BOARD_Y, level=self.level)
         self.score = enter_params["score"]
 
         self.timer = settings.LEVEL_TIME
@@ -52,9 +53,9 @@ class PlayState(BaseState):
         )
 
         # A surface that supports alpha to draw behind the text.
-        self.text_alpha_surface = pygame.Surface((212, 136), pygame.SRCALPHA)
+        self.text_alpha_surface = pygame.Surface((212, 536), pygame.SRCALPHA)
         pygame.draw.rect(
-            self.text_alpha_surface, (56, 56, 56, 234), pygame.Rect(0, 0, 212, 136)
+            self.text_alpha_surface, (186, 186, 180, 244), pygame.Rect(0, 0, 212, 536)
         )
 
         def decrement_timer():
@@ -81,31 +82,53 @@ class PlayState(BaseState):
     def render(self, surface: pygame.Surface) -> None:
         self.board.render(surface)
 
-        surface.blit(self.text_alpha_surface, (16, 16))
+        surface.blit(self.text_alpha_surface, (16, 0))
+
+        text_x = 30
+        text_y = 6
         render_text(
             surface,
-            f"Level: {self.level}",
+            f"Level {self.level}",
             settings.FONTS["medium"],
-            30,
-            24,
-            (99, 155, 255),
+            text_x + 40,
+            text_y,
+            (115, 55, 115),
             shadowed=True,
         )
         render_text(
             surface,
             f"Steps: {self.steps}",
             settings.FONTS["medium"],
-            30,
-            52,
+            text_x,
+            text_y + 28,
+            (99, 155, 255),
+            shadowed=True,
+        )
+        if self.board.boss is not None:
+            render_text(
+                surface,
+                f"BOSS PWR: {self.board.boss.power}",
+                settings.FONTS["medium"],
+                text_x,
+                text_y + 56,
+                (99, 155, 255),
+                shadowed=True,
+            )
+        render_text(
+            surface,
+            f"PLAYER PWR: {self.board.player.power}",
+            settings.FONTS["medium"],
+            text_x,
+            text_y + 84,
             (99, 155, 255),
             shadowed=True,
         )
         render_text(
             surface,
-            f"POWER: {self.board.score}/{self.goal_score}",
+            f"PLAYER HP: {self.board.player.health}",
             settings.FONTS["medium"],
-            30,
-            80,
+            text_x,
+            text_y + 112,
             (99, 155, 255),
             shadowed=True,
         )
@@ -113,11 +136,31 @@ class PlayState(BaseState):
             surface,
             f"Timer: {self.timer}",
             settings.FONTS["medium"],
-            30,
-            108,
+            text_x,
+            text_y + 140,
             (99, 155, 255),
             shadowed=True,
         )
+        
+        enemy_x = 30
+        enemy_y = 170
+
+        render_text( surface, "x 1", settings.FONTS["medium"],  70, enemy_y, (99, 155, 255), shadowed=True, )
+        render_text( surface, "x 2", settings.FONTS["medium"],  70, enemy_y + 30, (99, 155, 255), shadowed=True, )
+        render_text( surface, "x 3", settings.FONTS["medium"],  70, enemy_y + 60, (99, 155, 255), shadowed=True, )
+        render_text( surface, "x 4", settings.FONTS["medium"], 170, enemy_y, (99, 155, 255), shadowed=True, )
+        render_text( surface, "x 5", settings.FONTS["medium"], 170, enemy_y + 30, (99, 155, 255), shadowed=True, )
+        render_text( surface, "x 6", settings.FONTS["medium"], 170, enemy_y + 60, (99, 155, 255), shadowed=True, )
+        render_text( surface, f"x {(self.level+1)*7 }",
+                                     settings.FONTS["medium"], 120, enemy_y + 90, (99, 155, 255), shadowed=True, )
+
+        surface.blit(settings.TEXTURES["enemies"], (enemy_x, enemy_y - 10), settings.FRAMES["enemies"][0][0],)
+        surface.blit(settings.TEXTURES["enemies"], (enemy_x, enemy_y + 20), settings.FRAMES["enemies"][1][0],)
+        surface.blit(settings.TEXTURES["enemies"], (enemy_x, enemy_y + 50), settings.FRAMES["enemies"][2][0],)
+        surface.blit(settings.TEXTURES["enemies"], (enemy_x + 100, enemy_y - 10), settings.FRAMES["enemies"][3][0],)
+        surface.blit(settings.TEXTURES["enemies"], (enemy_x + 100, enemy_y + 20), settings.FRAMES["enemies"][4][0],)
+        surface.blit(settings.TEXTURES["enemies"], (enemy_x + 100, enemy_y + 50), settings.FRAMES["enemies"][5][0],)
+        surface.blit(settings.TEXTURES["bosses"],  (enemy_x + 45, enemy_y + 85), settings.FRAMES["bosses"][0][0],)
 
     def move_player(self, direction: str):
         self.moving = True
@@ -158,13 +201,14 @@ class PlayState(BaseState):
             self.moving = False
 
         def tried():
-            print("tried")
+            # print("tried")
+            pass
         self.board.player.j = copy.deepcopy(new_j)
         self.board.player.i = copy.deepcopy(new_i)
 
-        print(f"old: {old_i}, {old_j}  new: {new_i}, {new_j}  player: {self.board.player.i}, {self.board.player.j}")
+        # print(f"old: {old_i}, {old_j}  new: {new_i}, {new_j}  player: {self.board.player.i}, {self.board.player.j}")
         Timer.tween(
-            0.6,
+            0.2,
             [
                 (self.board.player, {"x": self.board.player.j * settings.TILE_SIZE,
                                      "y": self.board.player.i * settings.TILE_SIZE})
@@ -172,7 +216,7 @@ class PlayState(BaseState):
             on_finish=tried
         )
 
-        print(f"Values are {i}, {j}  ==  {new_i}, {new_j}")
+        # print(f"Values are {i}, {j}  ==  {new_i}, {new_j}")
         # if (j, i) != (new_j, new_i):
         if moved:
             self.steps += 1
@@ -183,7 +227,7 @@ class PlayState(BaseState):
             self.board.player.j = copy.deepcopy(old_j)
             self.board.player.i = copy.deepcopy(old_i)
             Timer.tween(
-                0.6,
+                0.2,
                 [
                     (self.board.player, {"x": self.board.player.j * settings.TILE_SIZE,
                                          "y": self.board.player.i * settings.TILE_SIZE})
@@ -213,7 +257,15 @@ class PlayState(BaseState):
                 self.move_player("right")
             
             self.board.check_fight()
+            print(f"HP: {self.board.player.health}")
+            if self.board.player.health == 0:
+                settings.SOUNDS["game-over"].play()
+                self.state_machine.change("game-over", score=self.score)
+
             if self.board.check_win():
                 Timer.clear()
                 settings.SOUNDS["next-level"].play()
-                self.state_machine.change("begin", score=self.score, level=self.level+1)
+                if self.level < 4:
+                    self.state_machine.change("begin", score=self.score, level=self.level+1)
+                else:
+                    self.state_machine.change("start") #self.state_machine.change("win")

@@ -23,7 +23,7 @@ from src.Enemy import Enemy
 import numpy as np
 
 class Board:
-    def __init__(self, x: int, y: int) -> None:
+    def __init__(self, x: int, y: int, level: int) -> None:
         self.x = x
         self.y = y
         self.score = 0
@@ -31,19 +31,20 @@ class Board:
         self.obstacles: List[Obstacle] = []
         self.walls: List[List[Tile]] = []
 
-        # start position
+        self.level = level
+
+        # start position PLAYER
         self.start_row = 1
         self.start_col = 1
-
-        # Goal position
+        self.player = Player(self.start_row, self.start_col)
+        
+        # Goal position BOSS
         self.goal_row = 6
         self.goal_col = 6
-        
-        self.player = Player(self.start_row, self.start_col)
+        self.boss = Enemy(self.goal_row, self.goal_col, (self.level + 1)*7)
 
         self.enemies: List[List[Enemy]] = []
 
-        self.level = 0
 
         self.__initialize_tiles()
         self.__initialize_obstacles(self.level)
@@ -67,8 +68,12 @@ class Board:
                 if enemy is not None:
                     enemy.render(surface, self.x, self.y)
         
-        # Player    
+        # Player
         self.player.render(surface, self.x, self.y)
+
+        # Boss
+        if self.boss is not None:
+            self.boss.render(surface, self.x, self.y)
         
     def __initialize_tiles(self) -> None:
         self.floors = [
@@ -88,37 +93,25 @@ class Board:
                         i, j, color, settings.NUM_FLOOR_VARIETY - 1
                     )
                 else:
-                    # for wall in self.walls_1:
-                    # if i == j:
-                    #     self.floors[i][j] = Tile(
-                    #         i, j, 1, random.randint(0, settings.NUM_FLOOR_VARIETY - 2)
-                    #     )
-                    # else:
                     self.floors[i][j] = Tile(
                         i, j, color, random.randint(0, settings.NUM_FLOOR_VARIETY - 2)
                     )
 
 
-                # # Walls
-                # if i == 0:
-                #     self.walls[i][j] = Wall(i, j, 3)
-                # if i == settings.BOARD_HEIGHT:
-                #     self.walls[i][j] = Wall(i, j, 1)
-                # if j == 0:
-                #     self.walls[i][j] = Wall(i, j, 0)
-                # if j == settings.BOARD_WIDTH:
-                #     self.walls[i][j] = Wall(i, j, 2)
 
     def __initialize_obstacles(self, level: int) -> None:
         
-        if level == 0:
-            self.obstacles = [None for _ in range(6)]
-            self.obstacles[0] = Obstacle(0, 0, level)
-            self.obstacles[1] = Obstacle(2, 2, level)
-            self.obstacles[2] = Obstacle(3, 3, level)
-            self.obstacles[3] = Obstacle(4, 4, level)
-            self.obstacles[4] = Obstacle(5, 5, level)
-            self.obstacles[5] = Obstacle(7, 7, level)
+        # if level == 0:
+        self.obstacles = [None for _ in range(9)]
+        self.obstacles[0] = Obstacle(0, 0, level)
+        self.obstacles[1] = Obstacle(2, 2, level)
+        self.obstacles[2] = Obstacle(3, 3, level)
+        self.obstacles[3] = Obstacle(4, 4, level)
+        self.obstacles[4] = Obstacle(5, 5, level)
+        self.obstacles[5] = Obstacle(0, 1, level)
+        self.obstacles[6] = Obstacle(0, 2, level)
+        self.obstacles[7] = Obstacle(0, 3, level)
+        self.obstacles[8] = Obstacle(0, 4, level)
         pass
 
     def __initializa_enemies(self) -> None:
@@ -128,11 +121,11 @@ class Board:
         ]
         for i in range(settings.BOARD_HEIGHT):
             for j in range(settings.BOARD_WIDTH):
-                if np.random.randint(0, 10) < 3:
+                if np.random.randint(0, 10) < 2 + self.level:
                     power = random.randint(0, 5)
                     
                     if (i == self.start_row and j == self.start_col or
-                        i == self.goal_row and j == self.goal_col):
+                        i == self.goal_row and j == self.goal_col or i == 0):
                         continue
                     else:
                         if self.floors[i][j] is not None:
@@ -142,16 +135,32 @@ class Board:
                                 )
 
     def check_fight(self) -> None:
+        # Against boss
+        if self.boss is not None:
+            print(f"Boss: {self.boss.power}")
+            if (self.player.i, self.player.j) == (self.boss.i, self.boss.j):
+                self.player.health = max(0, self.player.health - self.boss.power)
+                if self.player.health == 0:
+                    self.player.alive = False
+                    return
+                self.score += self.boss.power + 1
+                self.boss = None
+            
+        # Against normal enemies
         for j in range(settings.BOARD_HEIGHT):
             for i in range(settings.BOARD_WIDTH):
                 if self.enemies[i][j] is not None:
                     if (self.player.i, self.player.j) == (self.enemies[i][j].i, self.enemies[i][j].j):
                         # print(f"fight at: {enemy.j}, {enemy.i}")
                         # print(f"adding {self.enemies[i][j].power + 1} points")
+                        self.player.health = max(0, self.player.health - min(1, self.enemies[i][j].power // 2))
+                        if self.player.health == 0:
+                            self.player.alive = False
+                            return
                         self.score += self.enemies[i][j].power + 1
                         self.enemies[i][j] = None
         
-        self.player.level = self.score // 25
+        self.player.level = min(4, self.score // 25)
     
 
     def check_win(self) -> bool:

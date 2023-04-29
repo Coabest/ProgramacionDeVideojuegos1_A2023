@@ -19,8 +19,8 @@ from gale import input_handler
 from src.frames_utility import generate_tile_frames
 from src.frames_utility import generate_floor_frames
 from src.frames_utility import generate_obstacles_frames
-from src.frames_utility import generate_wall_frames
 from src.frames_utility import generate_enemies_frames
+from src.frames_utility import generate_bosses_frames
 from src.frames_utility import generate_skeletons_frames
 
 
@@ -69,13 +69,14 @@ TEXTURES = {
     "floor": pygame.image.load(BASE_DIR / "graphics" / "floor.png"),
     "obstacles": pygame.image.load(BASE_DIR / "graphics" / "obstacles.png"),
     "enemies": pygame.image.load(BASE_DIR / "graphics" / "enemies.png"),
+    "bosses": pygame.image.load(BASE_DIR / "graphics" / "bosses.png"),
     "skeletons": pygame.image.load(BASE_DIR / "graphics" / "skeletons.png"),
 }
 
 FRAMES = {"floors": generate_floor_frames(TEXTURES["floor"]),
-          "obstacles": generate_floor_frames(TEXTURES["obstacles"]),
-          "walls": generate_wall_frames(TEXTURES["floor"]),
+          "obstacles": generate_obstacles_frames(TEXTURES["obstacles"]),
           "enemies": generate_enemies_frames(TEXTURES["enemies"]),
+          "bosses": generate_bosses_frames(TEXTURES["bosses"]),
           "skeletons": generate_skeletons_frames(TEXTURES["skeletons"]),
           }
 

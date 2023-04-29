@@ -34,9 +34,15 @@ class Enemy:
         Timer.every(np.random.randint(15,25)/100, change_frame)
 
     def render(self, surface: pygame.Surface, offset_x: int, offset_y: int) -> None:
-        
-        surface.blit(
-            settings.TEXTURES["enemies"],
-            (self.x + offset_x, self.y + offset_y - 12),
-            settings.FRAMES["enemies"][self.power][self.frame],
-        )
+        if self.power < 7:
+            surface.blit(
+                settings.TEXTURES["enemies"],
+                (self.x + offset_x, self.y + offset_y - 12),
+                settings.FRAMES["enemies"][self.power][self.frame],
+            )
+        else:
+            surface.blit(
+                settings.TEXTURES["bosses"],
+                (self.x + offset_x, self.y + offset_y),
+                settings.FRAMES["bosses"][0][1],
+            )
