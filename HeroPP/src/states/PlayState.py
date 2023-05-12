@@ -26,8 +26,8 @@ import settings
 class PlayState(BaseState):
     def enter(self, **enter_params: Dict[str, Any]) -> None:
         self.level = enter_params["level"]
-        # self.board = enter_params["board"]
-        self.board = Board(settings.BOARD_X, settings.BOARD_Y, level=self.level)
+        self.board = enter_params["board"]
+        # self.board = Board(settings.BOARD_X, settings.BOARD_Y, level=self.level)
         self.score = enter_params["score"]
 
         self.timer = settings.LEVEL_TIME
@@ -145,12 +145,31 @@ class PlayState(BaseState):
         enemy_x = 30
         enemy_y = 170
 
-        render_text( surface, "x 1", settings.FONTS["medium"],  70, enemy_y, (99, 155, 255), shadowed=True, )
-        render_text( surface, "x 2", settings.FONTS["medium"],  70, enemy_y + 30, (99, 155, 255), shadowed=True, )
-        render_text( surface, "x 3", settings.FONTS["medium"],  70, enemy_y + 60, (99, 155, 255), shadowed=True, )
-        render_text( surface, "x 4", settings.FONTS["medium"], 170, enemy_y, (99, 155, 255), shadowed=True, )
-        render_text( surface, "x 5", settings.FONTS["medium"], 170, enemy_y + 30, (99, 155, 255), shadowed=True, )
-        render_text( surface, "x 6", settings.FONTS["medium"], 170, enemy_y + 60, (99, 155, 255), shadowed=True, )
+        for i in range(6):
+            render_text(
+                surface,
+                f"x {self.board.enemyType[i]}",
+                settings.FONTS["medium"],
+                70 if i < 3 else 170,
+                enemy_y + (i*30 if i < 3 else (i-3)*30),
+                (99, 155, 255),
+                shadowed=True,
+            )
+            # render_text(
+            #     surface,
+            #     f"x {i+4}",
+            #     settings.FONTS["medium"],
+            #     170,
+            #     enemy_y + i*30,
+            #     (99, 155, 255),
+            #     shadowed=True,
+            # )
+        # render_text( surface, "x 1", settings.FONTS["medium"],  70, enemy_y, (99, 155, 255), shadowed=True, )
+        # render_text( surface, "x 2", settings.FONTS["medium"],  70, enemy_y + 30, (99, 155, 255), shadowed=True, )
+        # render_text( surface, "x 3", settings.FONTS["medium"],  70, enemy_y + 60, (99, 155, 255), shadowed=True, )
+        # render_text( surface, "x 4", settings.FONTS["medium"], 170, enemy_y, (99, 155, 255), shadowed=True, )
+        # render_text( surface, "x 5", settings.FONTS["medium"], 170, enemy_y + 30, (99, 155, 255), shadowed=True, )
+        # render_text( surface, "x 6", settings.FONTS["medium"], 170, enemy_y + 60, (99, 155, 255), shadowed=True, )
         render_text( surface, f"x {(self.level+1)*7 }",
                                      settings.FONTS["medium"], 120, enemy_y + 90, (99, 155, 255), shadowed=True, )
 
@@ -160,7 +179,7 @@ class PlayState(BaseState):
         surface.blit(settings.TEXTURES["enemies"], (enemy_x + 100, enemy_y - 10), settings.FRAMES["enemies"][3][0],)
         surface.blit(settings.TEXTURES["enemies"], (enemy_x + 100, enemy_y + 20), settings.FRAMES["enemies"][4][0],)
         surface.blit(settings.TEXTURES["enemies"], (enemy_x + 100, enemy_y + 50), settings.FRAMES["enemies"][5][0],)
-        surface.blit(settings.TEXTURES["bosses"],  (enemy_x + 45, enemy_y + 85), settings.FRAMES["bosses"][0][0],)
+        surface.blit(settings.TEXTURES["bosses"],  (enemy_x + 45, enemy_y + 85), settings.FRAMES["bosses"][0][1],)
 
     def move_player(self, direction: str):
         self.moving = True

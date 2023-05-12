@@ -41,8 +41,10 @@ class Board:
         # Goal position BOSS
         self.goal_row = 6
         self.goal_col = 6
-        self.boss = Enemy(self.goal_row, self.goal_col, (self.level + 1)*7)
+        self.boss = Enemy(self.goal_row, self.goal_col, (self.level + 1)*15)
 
+        # Enemies
+        self.enemies_in_level: List[Enemy] = []
         self.enemies: List[List[Enemy]] = []
 
 
@@ -101,17 +103,59 @@ class Board:
 
     def __initialize_obstacles(self, level: int) -> None:
         
-        # if level == 0:
-        self.obstacles = [None for _ in range(9)]
-        self.obstacles[0] = Obstacle(0, 0, level)
-        self.obstacles[1] = Obstacle(2, 2, level)
-        self.obstacles[2] = Obstacle(3, 3, level)
-        self.obstacles[3] = Obstacle(4, 4, level)
-        self.obstacles[4] = Obstacle(5, 5, level)
-        self.obstacles[5] = Obstacle(0, 1, level)
-        self.obstacles[6] = Obstacle(0, 2, level)
-        self.obstacles[7] = Obstacle(0, 3, level)
-        self.obstacles[8] = Obstacle(0, 4, level)
+        # Obstacles
+        level_1 = [[0,0],[0,1],[0,2],[1,0],[4,1],[1,2],[0,5],[1,6],
+                   [2,2],[3,3],[4,4],[5,5],[7,7],[7,1],[7,2],[7,4]]
+        
+        level_2 = [[0,0],[0,1],[0,2],[1,0],[4,1],[1,2],[0,5],[1,6],
+                   [2,2],[3,3],[4,4],[5,5],[7,7],[7,1],[7,2],[7,4]]
+        
+        level_3 = [[0,0],[0,1],[0,2],[1,0],[4,1],[1,2],[0,5],[1,6],
+                   [2,2],[3,3],[4,4],[5,5],[7,7],[7,1],[7,2],[7,4]]
+        
+        level_4 = [[0,0],[0,1],[0,2],[1,0],[4,1],[1,2],[0,5],[1,6],
+                   [2,2],[3,3],[4,4],[5,5],[7,7],[7,1],[7,2],[7,4]]
+        
+        level_5 = [[0,0],[0,1],[0,2],[1,0],[4,1],[1,2],[0,5],[1,6],
+                   [2,2],[3,3],[4,4],[5,5],[7,7],[7,1],[7,2],[7,4]]
+
+        self.obstacles = [None for _ in range(16)]
+
+        if level == 0:
+            for i in range(16):
+                self.obstacles[i] = Obstacle(level_1[i][0], level_1[i][1], level)
+            # self.obstacles = [None for _ in range(16)]
+            # self.obstacles[0] = Obstacle(0, 0, level)
+            # self.obstacles[1] = Obstacle(2, 2, level)
+            # self.obstacles[2] = Obstacle(3, 3, level)
+            # self.obstacles[3] = Obstacle(4, 4, level)
+            # self.obstacles[4] = Obstacle(5, 5, level)
+            # self.obstacles[5] = Obstacle(7, 7, level)
+            
+
+        # self.obstacles = [None for _ in range(5)]
+            # self.obstacles[0] = Obstacle(0, 0, level)
+            # self.obstacles[1] = Obstacle(0, 1, level)
+            # self.obstacles[2] = Obstacle(0, 2, level)
+            # self.obstacles[3] = Obstacle(1, 0, level)
+            # self.obstacles[4] = Obstacle(4, 1, level)
+            # self.obstacles[5] = Obstacle(1, 2, level)
+
+            # self.obstacles[6] = Obstacle(0, 5, level)
+            # self.obstacles[7] = Obstacle(1, 6, level)
+            
+        # self.obstacles[0] = Obstacle(2, 2, level)
+        # self.obstacles[1] = Obstacle(3, 3, level)
+        # self.obstacles[3] = Obstacle(4, 4, level)
+        # self.obstacles[4] = Obstacle(5, 5, level)
+
+            # self.obstacles[13] = Obstacle(7, 1, level)
+            # self.obstacles[14] = Obstacle(7, 2, level)
+            # self.obstacles[15] = Obstacle(7, 4, level)
+
+        pass
+
+        
         pass
 
     def __initializa_enemies(self) -> None:
@@ -121,7 +165,7 @@ class Board:
         ]
         for i in range(settings.BOARD_HEIGHT):
             for j in range(settings.BOARD_WIDTH):
-                if np.random.randint(0, 10) < 2 + self.level:
+                if np.random.randint(0, 10) < 1:
                     power = random.randint(0, 5)
                     
                     if (i == self.start_row and j == self.start_col or
@@ -153,12 +197,16 @@ class Board:
                     if (self.player.i, self.player.j) == (self.enemies[i][j].i, self.enemies[i][j].j):
                         # print(f"fight at: {enemy.j}, {enemy.i}")
                         # print(f"adding {self.enemies[i][j].power + 1} points")
-                        self.player.health = max(0, self.player.health - min(1, self.enemies[i][j].power // 2))
-                        if self.player.health == 0:
-                            self.player.alive = False
-                            return
+                        # self.player.health = max(0, self.player.health - self.enemies[i][j].power)
+                        # if self.player.health == 0:
+                        #     self.player.alive = False
+                        #     return
+                        # if self.player.power >= self.enemies[i][j].power:
+                        self.player.power += (self.enemies[i][j].power + 1)
                         self.score += self.enemies[i][j].power + 1
                         self.enemies[i][j] = None
+                        # else:
+                            # self.player.alive = False
         
         self.player.level = min(4, self.score // 25)
     
@@ -176,8 +224,9 @@ class Board:
             print("NO FUERA DE RANGO")
             return False
         for obstacle in self.obstacles:
-            if obstacle.i == i and obstacle.j == j:
-                print("OBSTACLE")
-                return False
+            if obstacle is not None:
+                if obstacle.i == i and obstacle.j == j:
+                    print("OBSTACLE")
+                    return False
         
         return True
